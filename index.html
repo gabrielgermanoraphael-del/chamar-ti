@@ -5,81 +5,151 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Chamar o TI</title>
 <style>
-  :root { --azul:#1f4e78; --verde:#1e8e4e; --vermelho:#c0392b; --fundo:#f4f6f9; --texto:#1c1c1c; }
-  * { box-sizing:border-box; }
-  body { margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
-         background:var(--fundo); color:var(--texto);
-         font-family:-apple-system, "Segoe UI", Roboto, Arial, sans-serif; padding:24px; }
-  .card { width:100%; max-width:420px; background:#fff; border-radius:20px; padding:32px 24px;
-          text-align:center; box-shadow:0 8px 30px rgba(0,0,0,.08); }
-  .sala { font-size:15px; letter-spacing:.08em; text-transform:uppercase; color:#666; margin:0; }
-  h1 { font-size:40px; margin:4px 0 24px; color:var(--azul); }
-  button { width:100%; border:0; border-radius:16px; padding:28px 16px; font-size:24px; font-weight:700;
-           color:#fff; background:var(--azul); cursor:pointer; transition:transform .1s, opacity .2s; }
-  button:active { transform:scale(.97); }
-  button:disabled { opacity:.6; cursor:default; }
-  .icone { font-size:72px; line-height:1; margin:8px 0 12px; }
-  .msg { font-size:20px; font-weight:700; margin:0 0 8px; }
-  .sub { font-size:16px; color:#555; margin:0; }
-  .ok .msg { color:var(--verde); }
-  .erro .msg { color:var(--vermelho); }
+  :root { --azul:#1f4e78; --azul-claro:#e8f0f8; --verde:#1e8e4e; --vermelho:#c0392b;
+          --fundo:#f4f6f9; --texto:#1c1c1c; --borda:#d5dde6; }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { margin:0; min-height:100vh; display:flex; justify-content:center; background:var(--fundo);
+         color:var(--texto); font-family:-apple-system, "Segoe UI", Roboto, Arial, sans-serif; padding:16px; }
+  .card { width:100%; max-width:460px; background:#fff; border-radius:20px; padding:24px 18px;
+          box-shadow:0 8px 30px rgba(0,0,0,.08); align-self:flex-start; margin-top:8px; }
+  .topo { text-align:center; }
+  .escola { font-size:13px; letter-spacing:.08em; text-transform:uppercase; color:#666; margin:0; }
+  h1 { font-size:34px; margin:2px 0 4px; color:var(--azul); }
+  .instrucao { color:#555; margin:0 0 18px; font-size:16px; }
+  .opcoes { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .opcao { border:2px solid var(--borda); background:#fff; border-radius:14px; padding:14px 8px;
+           font-size:15px; font-weight:600; color:var(--texto); cursor:pointer; text-align:center;
+           display:flex; flex-direction:column; align-items:center; gap:6px; min-height:92px;
+           justify-content:center; transition:border-color .15s, background .15s; font-family:inherit; }
+  .opcao .ic { font-size:30px; line-height:1; }
+  .opcao.sel { border-color:var(--azul); background:var(--azul-claro); }
+  label { display:block; font-weight:600; margin:18px 0 6px; font-size:15px; }
+  textarea { width:100%; border:2px solid var(--borda); border-radius:12px; padding:10px 12px;
+             font-size:16px; font-family:inherit; resize:vertical; min-height:64px; }
+  textarea:focus { outline:none; border-color:var(--azul); }
+  .enviar { width:100%; border:0; border-radius:14px; padding:20px 16px; margin-top:16px; font-size:21px;
+            font-weight:700; color:#fff; background:var(--azul); cursor:pointer; font-family:inherit; }
+  .enviar:disabled { opacity:.45; cursor:default; }
+  .dica { text-align:center; color:#888; font-size:13px; margin:10px 0 0; }
+  .resultado { text-align:center; padding:12px 0 4px; }
+  .resultado .icone { font-size:68px; line-height:1; margin:6px 0 10px; }
+  .resultado .msg { font-size:21px; font-weight:700; margin:0 0 8px; }
+  .resultado .sub { font-size:16px; color:#555; margin:0; }
+  .ok .msg { color:var(--verde); } .erro .msg { color:var(--vermelho); }
+  .link { background:none; border:0; color:var(--azul); font-size:16px; text-decoration:underline;
+          margin-top:18px; cursor:pointer; font-family:inherit; }
   .oculto { display:none; }
-  .rodape { margin-top:24px; font-size:13px; color:#999; }
 </style>
 </head>
 <body>
 <main class="card">
-  <p class="sala">Tecnologia da escola</p>
-  <h1 id="nomeSala">Sala</h1>
-
-  <div id="telaInicial">
-    <button id="botao" type="button">🔔 Chamar o TI</button>
-    <p class="rodape">Aperte o botão e o técnico recebe o aviso na hora.</p>
+  <div class="topo">
+    <p class="escola">Tecnologia da escola</p>
+    <h1 id="nomeSala">Sala</h1>
   </div>
 
-  <div id="telaOk" class="ok oculto">
+  <section id="telaForm">
+    <p class="instrucao topo">O que você precisa?</p>
+    <div class="opcoes" id="opcoes"></div>
+
+    <label for="detalhe" id="rotuloDetalhe">Quer explicar melhor? (opcional)</label>
+    <textarea id="detalhe" maxlength="200" placeholder="Ex.: a internet caiu só no meu notebook"></textarea>
+
+    <button class="enviar" id="enviar" type="button" disabled>🔔 Chamar o TI</button>
+    <p class="dica" id="dica">Escolha uma opção acima.</p>
+  </section>
+
+  <section id="telaOk" class="resultado ok oculto">
     <div class="icone">✅</div>
     <p class="msg">O TI foi avisado!</p>
-    <p class="sub">Já estamos indo até a <span class="nomeSalaTxt"></span>.<br>Pode fechar esta página.</p>
-  </div>
+    <p class="sub" id="resumoOk"></p>
+    <button class="link" id="novo" type="button">Fazer outro pedido</button>
+  </section>
 
-  <div id="telaErro" class="erro oculto">
+  <section id="telaErro" class="resultado erro oculto">
     <div class="icone">⚠️</div>
     <p class="msg">Não foi possível chamar.</p>
     <p class="sub">Verifique a internet e tente de novo, ou procure o TI pessoalmente.</p>
-    <p class="rodape"><button id="tentarDeNovo" type="button" style="padding:16px;font-size:18px">Tentar de novo</button></p>
-  </div>
+    <button class="enviar" id="tentarDeNovo" type="button">Tentar de novo</button>
+  </section>
 </main>
 
 <script>
   // ====== CONFIGURAÇÃO ======
-  // Tópico do ntfy em que o seu celular está inscrito.
-  // Troque por um nome único e difícil de adivinhar, e use o mesmo tópico para todas as salas.
-  const TOPICO = "chamados-aparecido-batista";
-  // Intervalo mínimo entre dois chamados da mesma sala neste celular (evita chamar várias vezes sem querer)
-  const ESPERA_SEGUNDOS = 60;
+  const TOPICO = "chamados-aparecido-batista";   // tópico do ntfy
+  const ESPERA_SEGUNDOS = 60;                     // evita o mesmo pedido repetido sem querer
+
+  // Opções que o professor pode escolher: [código, ícone, texto]
+  const OPCOES = [
+    ["internet",  "📶", "Internet / Wi-Fi"],
+    ["chave",     "🔑", "Chave do carrinho de tablets"],
+    ["lousa",     "🖊️", "Lousa digital"],
+    ["projetor",  "📽️", "Projetor"],
+    ["computador","💻", "Computador / notebook"],
+    ["som",       "🔊", "Som"],
+    ["tablet",    "📱", "Tablet de aluno"],
+    ["impressora","🖨️", "Impressora"],
+    ["outro",     "💬", "Outro"],
+  ];
+
+  // Nomes amigáveis para locais que não são número de sala
+  const LOCAIS = { "secretaria": "Secretaria", "professores": "Sala dos Professores" };
   // ==========================
 
   const params = new URLSearchParams(location.search);
-  const sala = (params.get("sala") || "").trim().slice(0, 30) || "sala não informada";
-  const nome = /^\d+$/.test(sala) ? "Sala " + sala : sala;
+  const sala = (params.get("sala") || "").trim().slice(0, 30);
+  const nomeLocal = LOCAIS[sala.toLowerCase()] || (/^\d+$/.test(sala) ? "Sala " + sala : (sala || "Local não informado"));
 
-  document.getElementById("nomeSala").textContent = nome;
-  document.querySelectorAll(".nomeSalaTxt").forEach(e => e.textContent = nome);
-  document.title = "Chamar o TI – " + nome;
+  document.getElementById("nomeSala").textContent = nomeLocal;
+  document.title = "Chamar o TI – " + nomeLocal;
 
-  const mostrar = id => ["telaInicial", "telaOk", "telaErro"].forEach(t =>
-    document.getElementById(t).classList.toggle("oculto", t !== id));
+  const $ = id => document.getElementById(id);
+  const mostrar = id => ["telaForm", "telaOk", "telaErro"].forEach(t => $(t).classList.toggle("oculto", t !== id));
+  let escolhida = null;
 
-  const chave = "ultimoChamado_" + sala;
-  function chamadoRecente() {
+  // Monta os botões de opção
+  const grade = $("opcoes");
+  OPCOES.forEach(([codigo, icone, texto]) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "opcao";
+    b.dataset.codigo = codigo;
+    b.innerHTML = `<span class="ic">${icone}</span><span>${texto}</span>`;
+    if (codigo === "outro") b.style.gridColumn = "1 / -1";
+    b.addEventListener("click", () => {
+      escolhida = OPCOES.find(o => o[0] === codigo);
+      grade.querySelectorAll(".opcao").forEach(x => x.classList.toggle("sel", x === b));
+      atualizarBotao();
+      if (codigo === "outro") $("detalhe").focus();
+    });
+    grade.appendChild(b);
+  });
+
+  function atualizarBotao() {
+    const precisaDetalhe = escolhida && escolhida[0] === "outro";
+    const temDetalhe = $("detalhe").value.trim().length > 0;
+    $("rotuloDetalhe").textContent = precisaDetalhe ? "Descreva o que você precisa:" : "Quer explicar melhor? (opcional)";
+    $("enviar").disabled = !escolhida || (precisaDetalhe && !temDetalhe);
+    $("dica").textContent = !escolhida ? "Escolha uma opção acima."
+      : (precisaDetalhe && !temDetalhe ? "Escreva o que você precisa." : "Pronto, é só apertar o botão.");
+  }
+  $("detalhe").addEventListener("input", atualizarBotao);
+
+  function chamadoRecente(chave) {
     try { return Date.now() - Number(localStorage.getItem(chave) || 0) < ESPERA_SEGUNDOS * 1000; }
     catch (e) { return false; }
   }
 
-  async function chamar() {
-    const botao = document.getElementById("botao");
-    if (chamadoRecente()) { mostrar("telaOk"); return; }
+  async function enviar() {
+    if (!escolhida) return;
+    const [codigo, icone, texto] = escolhida;
+    const detalhe = $("detalhe").value.trim();
+    const chave = "chamado_" + sala + "_" + codigo;
+    $("resumoOk").textContent = `${icone} ${texto} – ${nomeLocal}. Já estamos indo!`;
+
+    if (chamadoRecente(chave)) { mostrar("telaOk"); return; }
+
+    const botao = $("enviar");
     botao.disabled = true;
     botao.textContent = "Chamando...";
     try {
@@ -88,8 +158,8 @@
         method: "POST",
         body: JSON.stringify({
           topic: TOPICO,
-          title: "Chamado TI",
-          message: nome + " chamando",
+          title: `${nomeLocal}: ${texto}`,
+          message: detalhe ? detalhe : `${icone} ${texto}`,
           tags: ["bell"],
           priority: 4
         })
@@ -100,13 +170,20 @@
     } catch (e) {
       mostrar("telaErro");
     } finally {
-      botao.disabled = false;
       botao.textContent = "🔔 Chamar o TI";
+      atualizarBotao();
     }
   }
 
-  document.getElementById("botao").addEventListener("click", chamar);
-  document.getElementById("tentarDeNovo").addEventListener("click", () => { mostrar("telaInicial"); chamar(); });
+  $("enviar").addEventListener("click", enviar);
+  $("tentarDeNovo").addEventListener("click", () => { mostrar("telaForm"); enviar(); });
+  $("novo").addEventListener("click", () => {
+    escolhida = null;
+    $("detalhe").value = "";
+    grade.querySelectorAll(".opcao").forEach(x => x.classList.remove("sel"));
+    atualizarBotao();
+    mostrar("telaForm");
+  });
 </script>
 </body>
 </html>
